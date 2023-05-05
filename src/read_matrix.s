@@ -67,7 +67,6 @@ read_matrix:
     bne a0, t1, error_29  # fread does not read the correct number of bytes
     
     # calculate how much space to allocate
-    ebreak
     lw s5, 0(s1)
     lw s6, 4(s1)
     mul s4, s5, s6

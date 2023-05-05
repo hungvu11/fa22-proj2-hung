@@ -36,46 +36,56 @@ write_matrix:
     sw s3, 12(sp)
     sw ra, 16(sp)
     
-    mv s0, a1 # pointer to the maxtrix in memory
-    mul s2, a2, a3   # size of the matrix
-    
     addi sp, sp, -16
     sw a0, 0(sp)
     sw a1, 4(sp)
     sw a2, 8(sp)
     sw a3, 12(sp)
     
-
-# Open the file with write permissions
-    mv a0, s0
+    mv s2, a1   # pointer to the matrix in memory
+    mul s3, a2, a3  # size of the matrix
+    
+    # open file with write permissions
     li a1, 1
     jal ra, fopen
     li t0, -1
-    mv s1, a0 # file descriptor
-    beq s1, t0, error_fopen
+    beq a0, t0, error_fopen
     
-    la s3, row
-    sw a2, 0(s3)
-    sw a3, 4(s3)
+    mv s0, a0  # file descriptor
+        
+    lw a0, 0(sp)
+    lw a1, 4(sp)
+    lw a2, 8(sp)
+    lw a3, 12(sp)
+    addi sp, sp, -16
     
-    ebreak
-    mv a0, s1
-    mv a1, s3
-    li a2, 2
-    li a3, 4
+    la s1, row   
+    sw a2, 0(s1)
+    sw a3, 4(s1)
     
+    addi sp, sp, 16
+    sw a0, 0(sp)
+    sw a1, 4(sp)
+    sw a2, 8(sp)
+    sw a3, 12(sp)
+    
+    mv a0, s0
+    mv a1, s1
+    li a2, 2    # write 2 number 
+    li a3, 4    # each number has size 4
     jal ra, fwrite
     li t0, 2
     bne a0, t0, error_fwrite
     
-    mv a0, s1
-    mv a1, s0
-    mv a2, s2
+    # fwrite the matrix in the file
+    mv a0, s0
+    mv a1, s2
+    mv a2, s3
     li a3, 4
     jal ra, fwrite
-    bne s2, a0, error_fwrite
+    bne a0, s3, error_fwrite
     
-    mv a0, s1
+    mv a0, s0
     jal ra, fclose
     bne a0, x0, error_fclose
     
@@ -92,7 +102,7 @@ write_matrix:
     lw s3, 12(sp)
     lw ra, 16(sp)
     addi sp, sp, 20
-
+    
     jr ra
 error_fopen:
     li a0, 27
